@@ -3,13 +3,12 @@ package com.ticketapp.booking.service;
 import com.ticketapp.booking.dto.EventRequestDTO;
 import com.ticketapp.booking.dto.EventResponseDTO;
 import com.ticketapp.booking.entity.Event;
+import com.ticketapp.booking.exception.DuplicateException;
 import com.ticketapp.booking.exception.NotFoundException;
 import com.ticketapp.booking.repo.EventRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,7 +25,7 @@ public class EventService {
     public EventResponseDTO createEvent(EventRequestDTO eventRequestDTO) {
         boolean tittleExists = eventRepo.existsByTitle(eventRequestDTO.getTitle());
         if (tittleExists) {
-            throw new DuplicateKeyException("Title already exists");
+            throw new DuplicateException("Title already exists");
         }
         Event event = modelMapper.map(eventRequestDTO, Event.class);
         event.setAvailableTickets(eventRequestDTO.getTotalTickets());
