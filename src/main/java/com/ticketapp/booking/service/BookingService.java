@@ -12,9 +12,14 @@ import com.ticketapp.booking.repo.UserRepository;
 import com.ticketapp.booking.utill.PayHereUtils;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.awt.print.Book;
+import java.util.List;
 
 @Service
 @Transactional
@@ -24,6 +29,7 @@ public class BookingService {
     private final BookingRepository bookingRepo;
     private final EventRepository eventRepo;
     private final UserRepository userRepo;
+    private final ModelMapper modelMapper;
 
     @Value("${payhere.merchant.id}")
     private String merchantId;
@@ -117,4 +123,33 @@ public class BookingService {
         bookingRepo.save(booking);
         return true;
     }
+
+    public List<BookingResponseDTO> getBookingsByUserId(Long userId) {
+        if(!userRepo.existsById(userId)) {
+            throw new NotFoundException("User not found");
+        }
+        List<Booking> bookings = bookingRepo.findByUserId(userId);
+        return bookings.stream().map(this::mapToDTO).toList();
+    }
+
+    public BookingResponseDTO getBookingsById(Long bookingId) {
+        Booking booking = bookingRepo.findById(bookingId)
+                .orElseThrow(() -> new NotFoundException("Booking not found"));
+        return mapToDTO(booking);
+    }
+    private BookingResponseDTO mapToDTO(Booking booking) {
+        BookingResponseDTO dto = new BookingResponseDTO();
+        dto.setBookingId(booking.getId());
+        dto.setOrderId("ORDER_" + booking.getId());
+        dto.setMerchantId(merchantId);
+        dto.setEventTitle(booking.getEvent().getTitle());
+        dto.setTicketCount(booking.getTicketCount());
+        dto.setTotalAmount(booking.getTotalAmount());
+        dto.setCurrency(currency);
+        dto.setPaymentStatus(booking.getPaymentStatus());
+        dto.setBookingTime(booking.getBookingTime());
+        return dto;
+    }
 }
+
+

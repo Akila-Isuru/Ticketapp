@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URISyntaxException;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/bookings")
@@ -50,6 +51,23 @@ public class BookingController {
         }else {
             return new ResponseEntity<>("Unauthorized Request", HttpStatus.UNAUTHORIZED);
         }
+    }
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<StandardResponse> getBookingByUserId(@PathVariable Long userId) {
+        List<BookingResponseDTO> bookings = bookingService.getBookingsByUserId(userId);
+        return new ResponseEntity<>(
+                new StandardResponse(200,"Bookings found",bookings),
+                HttpStatus.OK
+        );
+    }
+
+    @GetMapping("/{bookingId}")
+    public ResponseEntity<StandardResponse> getBookingByBookingId(@PathVariable Long bookingId) {
+        BookingResponseDTO booking = bookingService.getBookingsById(bookingId);
+        return new ResponseEntity<>(
+                new StandardResponse(200,"Booking found",booking),
+                HttpStatus.OK
+        );
     }
 
 }
