@@ -42,13 +42,14 @@ public class BookingController {
             @RequestParam("status_code") String statusCode,
             @RequestParam(value = "md5sig",required = false) String md5sig
     ){
-        if("2".equals(statusCode)){
-            bookingService.updatePaymentStatus(orderId,paymentId,"PAID");
-        }else{
-            bookingService.updatePaymentStatus(orderId,paymentId,"FAILED");
+        boolean isSuccess = bookingService.updatePaymentStatus(
+                merchantId, orderId, paymentId, payhereAmount, payhereCurrency, statusCode, md5sig
+        );
+        if(isSuccess){
+            return new ResponseEntity<>("OK", HttpStatus.OK);
+        }else {
+            return new ResponseEntity<>("Unauthorized Request", HttpStatus.UNAUTHORIZED);
         }
-        return new ResponseEntity<>("OK",HttpStatus.OK);
     }
-
 
 }

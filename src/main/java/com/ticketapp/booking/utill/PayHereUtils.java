@@ -30,4 +30,19 @@ public class PayHereUtils {
         String source = merchantId + orderId + formattedAmount + currency + hashedSecret;
         return getMd5(source);
     }
+    public static boolean verifyNotifyHash(String merchantId,
+                                           String orderId,
+                                           String payhereAmount,
+                                           String payhereCurrency,
+                                           String statusCode,
+                                           String merchantSecret,
+                                           String receivedMd5sig){
+
+        String hashedSecret = getMd5(merchantSecret);
+        String source = merchantId + orderId + payhereAmount + payhereCurrency + statusCode + hashedSecret;
+        String calculatedHash = getMd5(source);
+
+        return calculatedHash.equalsIgnoreCase(receivedMd5sig);
+
+    }
 }
