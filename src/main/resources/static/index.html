@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ticket Booking - PayHere Payment Test</title>
+    <!-- PayHere JavaScript SDK -->
+    <script type="text/javascript" src="https://www.payhere.lk/lib/payhere.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f7f6;
+            margin: 0;
+        }
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            text-align: center;
+            width: 320px;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 15px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>Event Ticket Booking</h2>
+    <p>Book your ticket and pay via PayHere Gateway</p>
+
+    <button onclick="bookAndPay()">Book & Pay Now</button>
+</div>
+
+<script>
+    // 1. PayHere Event Callbacks
+    payhere.onCompleted = function onCompleted(orderId) {
+        alert("Payment Successful! Order ID: " + orderId);
+    };
+
+    payhere.onDismissed = function onDismissed() {
+        alert("Payment Cancelled by User.");
+    };
+
+    payhere.onError = function onError(error) {
+        alert("Error in Payment: " + error);
+    };
+
+    // 2. Backend එකට Call කරල PayHere Pop-up එක Trigger කරන Function එක
+    function bookAndPay() {
+
+        // Backend එකට යවන Request Body එක (DB එකේ තියෙන valid userId, eventId එකක් දෙන්න)
+        const bookingData = {
+            userId: 1,
+            eventId: 1,
+            ticketCount: 2
+        };
+
+        // Spring Boot Backend API එක Call කිරීම
+        fetch('/api/v1/bookings', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(bookingData)
+        })
+            .then(response => response.json())
+            .then(res => {
+                if (res.code === 201) {
+                    const data = res.data; // BookingResponseDTO එක
+
+                    // PayHere Pop-up එකට දෙන Payment Object එක
+                    var payment = {
+                        "sandbox": true,
+                        "merchant_id": data.merchantId,
+                        "return_url": "http://localhost:8080",
+                        "cancel_url": "http://localhost:8080",
+                        "notify_url": "http://localhost:8080/api/v1/bookings/notify",
+                        "order_id": data.orderId,
+                        "items": data.eventTitle,
+                        "amount": data.totalAmount.toFixed(2),
+                        "currency": data.currency,
+                        "hash": data.hash,
+                        "first_name": "Kasun",
+                        "last_name": "Perera",
+                        "email": "kasun@gmail.com",
+                        "phone": "0771234567",
+                        "address": "No 12, Galle Road",
+                        "city": "Colombo",
+                        "country": "Sri Lanka"
+                    };
+
+                    // PayHere Real Pop-up එක Open කිරීම
+                    payhere.startPayment(payment);
+
+                } else {
+                    alert("Booking Failed: " + res.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert("Something went wrong! Make sure backend is running.");
+            });
+    }
+</script>
+</body>
+</html>
