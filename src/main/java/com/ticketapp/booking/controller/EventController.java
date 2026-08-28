@@ -46,5 +46,14 @@ public class EventController {
                 HttpStatus.OK
         );
     }
+
+    @GetMapping(path = "/search")
+    public ResponseEntity<StandardResponse> searchEvent(@RequestParam String word){
+        List<EventResponseDTO> events = eventService.searchEvents(word);
+        return new ResponseEntity<>(
+                new StandardResponse(200,"Events fetched successfully",events),
+                HttpStatus.OK
+        );
+    }
 }
 

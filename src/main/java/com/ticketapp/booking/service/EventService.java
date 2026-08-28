@@ -42,4 +42,10 @@ public class EventService {
 
         return modelMapper.map(event,EventResponseDTO.class);
     }
+
+    public List<EventResponseDTO> searchEvents(String word){
+
+        List<Event> events = eventRepo.findByTitleContainingIgnoreCaseOrLocationContainingIgnoreCase(word,word);
+        return modelMapper.map(events,new TypeToken<List<EventResponseDTO>>() {}.getType());
+    }
 }

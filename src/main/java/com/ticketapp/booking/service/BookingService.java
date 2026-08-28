@@ -146,6 +146,26 @@ public class BookingService {
                 .orElseThrow(() -> new NotFoundException("Booking not found"));
         return mapToDTO(booking);
     }
+
+    public void cancelBooking(Long bookingId) {
+
+        Booking booking = bookingRepo.findById(bookingId)
+                .orElseThrow(() -> new NotFoundException("Booking not found"));
+
+        if("CANCELLED".equals(booking.getPaymentStatus())) {
+            throw new RuntimeException("Booking is already cancelled");
+        }
+
+        Event event = booking.getEvent();
+        event.setAvailableTickets(event.getAvailableTickets() + booking.getTicketCount());
+        eventRepo.save(event);
+
+        booking.setPaymentStatus("CANCELLED");
+        bookingRepo.save(booking);
+
+
+
+    }
     private BookingResponseDTO mapToDTO(Booking booking) {
         BookingResponseDTO dto = new BookingResponseDTO();
         dto.setBookingId(booking.getId());
@@ -159,6 +179,7 @@ public class BookingService {
         dto.setBookingTime(booking.getBookingTime());
         return dto;
     }
+
 }
 
 

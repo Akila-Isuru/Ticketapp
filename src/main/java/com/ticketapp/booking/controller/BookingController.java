@@ -70,4 +70,13 @@ public class BookingController {
         );
     }
 
+    @PutMapping(path = "/cancel/{id}")
+    public ResponseEntity<StandardResponse> cancelBooking(@PathVariable Long id) {
+        bookingService.cancelBooking(id);
+        return new ResponseEntity<>(
+                new StandardResponse(200,"Booking cancelled successfully and tickets restored",null),
+                HttpStatus.OK
+        );
+    }
+
 }
