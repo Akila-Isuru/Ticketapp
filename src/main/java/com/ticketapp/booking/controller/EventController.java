@@ -7,6 +7,7 @@ import com.ticketapp.booking.utill.StandardResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -54,6 +55,21 @@ public class EventController {
                 new StandardResponse(200,"Events fetched successfully",events),
                 HttpStatus.OK
         );
+    }
+
+    @GetMapping(path = "/page")
+    public ResponseEntity<StandardResponse> getPageEvents(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "asc") String sortDir
+    ){
+        Page<EventResponseDTO> eventsPage = eventService.getPagedEvents(page, size, sortBy, sortDir);
+        return new ResponseEntity<>(
+                new StandardResponse(200,"Page fetched successfully",eventsPage),
+                HttpStatus.OK
+        );
+
     }
 }
 

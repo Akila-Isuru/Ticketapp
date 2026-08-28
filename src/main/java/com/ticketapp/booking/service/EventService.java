@@ -7,8 +7,12 @@ import com.ticketapp.booking.exception.DuplicateException;
 import com.ticketapp.booking.exception.NotFoundException;
 import com.ticketapp.booking.repo.EventRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -47,5 +51,16 @@ public class EventService {
 
         List<Event> events = eventRepo.findByTitleContainingIgnoreCaseOrLocationContainingIgnoreCase(word,word);
         return modelMapper.map(events,new TypeToken<List<EventResponseDTO>>() {}.getType());
+    }
+
+    public Page<EventResponseDTO>getPagedEvents(int page,int size,String sortBy,String sortDir){
+
+        Sort sort = sortDir.equalsIgnoreCase(Sort.Direction.ASC.name())?
+                Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+
+        Pageable pageable = PageRequest.of(page,size,sort);
+        Page <Event> eventPage =eventRepo.findAll(pageable);
+
+        return eventPage.map(event -> modelMapper.map(event, EventResponseDTO.class));
     }
 }
