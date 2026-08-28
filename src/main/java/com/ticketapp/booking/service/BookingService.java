@@ -30,6 +30,7 @@ public class BookingService {
     private final EventRepository eventRepo;
     private final UserRepository userRepo;
     private final ModelMapper modelMapper;
+    private final EmailService emailService;
 
     @Value("${payhere.merchant.id}")
     private String merchantId;
@@ -109,6 +110,14 @@ public class BookingService {
         if ("2".equals(statusCode)) {
             booking.setPaymentStatus("PAID");
             booking.setPayherePaymentId(payherePaymentId);
+
+            emailService.sendBookingConfirmationEmail(
+                    booking.getUser().getEmail(),
+                    booking.getEvent().getTitle(),
+                    orderId,
+                    booking.getTicketCount(),
+                    booking.getTotalAmount()
+            );
         } else {
             if (!"FAILED".equals(booking.getPaymentStatus())) {
                 booking.setPaymentStatus("FAILED");
