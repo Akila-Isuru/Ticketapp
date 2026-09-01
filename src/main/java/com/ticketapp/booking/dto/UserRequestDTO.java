@@ -1,5 +1,6 @@
 package com.ticketapp.booking.dto;
 
+import com.ticketapp.booking.entity.Role;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -16,5 +17,10 @@ public class UserRequestDTO {
     @Email(message = "Invalid email format!")
     private String email;
     private String phone;
+
+    @NotBlank(message = "Password cannot be empty !")
+    private String password;
+
+    private Role role;
 
 }

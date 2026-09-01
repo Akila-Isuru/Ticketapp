@@ -22,4 +22,10 @@ public class User {
     private String email;
 
     private String phone;
+
+    @Column(nullable = false)
+    private String password;
+
+    @Enumerated(EnumType.STRING)
+    private Role role;
 }
