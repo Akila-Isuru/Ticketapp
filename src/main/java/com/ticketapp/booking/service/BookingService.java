@@ -166,6 +166,37 @@ public class BookingService {
 
 
     }
+    public BookingResponseDTO processMockPayment(Long bookingId) {
+        Booking booking = bookingRepo.findById(bookingId)
+                .orElseThrow(() -> new NotFoundException("Booking not found"));
+
+        if ("PAID".equals(booking.getPaymentStatus())) {
+            throw new RuntimeException("Booking is already paid!");
+        }
+
+        if ("CANCELLED".equals(booking.getPaymentStatus())) {
+            throw new RuntimeException("Cannot pay for a cancelled booking!");
+        }
+
+        booking.setPaymentStatus("PAID");
+        booking.setPayherePaymentId("MOCK_PAY_" + System.currentTimeMillis());
+        Booking updatedBooking = bookingRepo.save(booking);
+
+        // Send Email Confirmation
+        try {
+            emailService.sendBookingConfirmationEmail(
+                    booking.getUser().getEmail(),
+                    booking.getEvent().getTitle(),
+                    "ORDER_" + booking.getId(),
+                    booking.getTicketCount(),
+                    booking.getTotalAmount()
+            );
+        } catch (Exception e) {
+            System.err.println("Email notification failed: " + e.getMessage());
+        }
+
+        return mapToDTO(updatedBooking);
+    }
     private BookingResponseDTO mapToDTO(Booking booking) {
         BookingResponseDTO dto = new BookingResponseDTO();
         dto.setBookingId(booking.getId());

@@ -40,13 +40,18 @@ public class AuthService {
     }
 
     public AuthResponseDTO loginUser(AuthRequestDTO authRequestDTO) {
+
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         authRequestDTO.getEmail(),
                         authRequestDTO.getPassword()
                 )
         );
-        String token = jwtUtils.generateToken(authRequestDTO.getEmail());
+
+        User user = userRepo.findByEmail(authRequestDTO.getEmail())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        String token = jwtUtils.generateToken(user.getEmail(), user.getRole().name());
+
         return new AuthResponseDTO(token);
     }
 

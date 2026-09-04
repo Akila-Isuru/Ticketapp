@@ -78,5 +78,14 @@ public class BookingController {
                 HttpStatus.OK
         );
     }
+    @PutMapping("/pay/{bookingId}")
+    public ResponseEntity<StandardResponse> processPayment(@PathVariable Long bookingId) {
+        BookingResponseDTO bookingResponseDTO = bookingService.processMockPayment(bookingId);
+        return new ResponseEntity<>(
+                new StandardResponse(200, "Payment completed successfully", bookingResponseDTO),
+                HttpStatus.OK
+        );
+    }
+
 
 }
