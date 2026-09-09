@@ -27,4 +27,6 @@ public class Event {
 
     @Column(nullable = false)
     private Integer availableTickets;
+
+    private String imageUrl;
 }

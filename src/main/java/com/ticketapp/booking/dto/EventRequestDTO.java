@@ -28,6 +28,9 @@ public class EventRequestDTO {
    @Min(value = 1,message = "At least should buy a one ticket !")
     private Integer totalTickets;
 
+    private String imageUrl;
+
+
 
 
 }

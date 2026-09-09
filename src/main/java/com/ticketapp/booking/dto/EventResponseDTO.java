@@ -15,4 +15,6 @@ public class EventResponseDTO {
     private String ticketPrice;
     private Integer totalTickets;
     private Integer availableTickets;
+    private String imageUrl;
+
 }
