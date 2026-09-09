@@ -44,6 +44,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/v1/events", "/api/v1/events/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/events/**").hasAuthority("ROLE_ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/v1/events/**").hasAuthority("ROLE_ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/events/**").hasAuthority("ROLE_ADMIN")
+
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session

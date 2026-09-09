@@ -63,4 +63,30 @@ public class EventService {
 
         return eventPage.map(event -> modelMapper.map(event, EventResponseDTO.class));
     }
+
+    public EventResponseDTO updateEvent(Long eventId, EventRequestDTO eventRequestDTO) {
+        Event event = eventRepo.findById(eventId).
+                orElseThrow(()->new NotFoundException("Event not found"));
+
+        int soldTickets = event.getTotalTickets() - event.getAvailableTickets();
+
+        event.setTitle(eventRequestDTO.getTitle());
+        event.setLocation(eventRequestDTO.getLocation());
+        event.setTicketPrice(eventRequestDTO.getTicketPrice());
+        event.setTotalTickets(eventRequestDTO.getTotalTickets());
+        event.setImageUrl(eventRequestDTO.getImageUrl());
+        event.setEventDate(eventRequestDTO.getEventDate());
+        event.setAvailableTickets(eventRequestDTO.getTotalTickets() - soldTickets);
+
+        eventRepo.save(event);
+        return modelMapper.map(event,EventResponseDTO.class);
+
+    }
+
+    public void deleteEvent(Long eventId) {
+        Event event = eventRepo.findById(eventId).
+                orElseThrow(()->new NotFoundException("Event not found"));
+        eventRepo.delete(event);
+
+    }
 }

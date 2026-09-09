@@ -71,5 +71,24 @@ public class EventController {
         );
 
     }
+
+    @PutMapping("/{eventId}")
+    public ResponseEntity<StandardResponse> updateEvent(@PathVariable Long eventId,
+                                                        @RequestBody @Valid EventRequestDTO eventRequestDTO){
+        EventResponseDTO updatedEvent = eventService.updateEvent(eventId, eventRequestDTO);
+        return new ResponseEntity<>(
+                new StandardResponse(200,"Event updated successfully",updatedEvent),
+                HttpStatus.OK
+        );
+    }
+
+    @DeleteMapping("/{eventId}")
+    public ResponseEntity<StandardResponse> deleteEvent(@PathVariable Long eventId){
+        eventService.deleteEvent(eventId);
+        return new ResponseEntity<>(
+                new StandardResponse(200,"Event deleted successfully",null),
+                HttpStatus.OK
+        );
+    }
 }
 
