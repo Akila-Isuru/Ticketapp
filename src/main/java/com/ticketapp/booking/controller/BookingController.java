@@ -3,10 +3,12 @@ package com.ticketapp.booking.controller;
 import com.ticketapp.booking.dto.BookingRequestDTO;
 import com.ticketapp.booking.dto.BookingResponseDTO;
 import com.ticketapp.booking.service.BookingService;
+import com.ticketapp.booking.utill.QRCodeGenerator;
 import com.ticketapp.booking.utill.StandardResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -85,6 +87,15 @@ public class BookingController {
                 new StandardResponse(200, "Payment completed successfully", bookingResponseDTO),
                 HttpStatus.OK
         );
+    }
+    @GetMapping(value = "/{bookingId}/qrcode", produces = MediaType.IMAGE_PNG_VALUE)
+    public ResponseEntity<byte[]> getBookingQRCode(@PathVariable Long bookingId) throws Exception {
+        BookingResponseDTO booking = bookingService.getBookingsById(bookingId);
+        byte[] qrImage = QRCodeGenerator.generateQRCodeImage(booking.getOrderId(), 300, 300);
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.IMAGE_PNG)
+                .body(qrImage);
     }
 
 

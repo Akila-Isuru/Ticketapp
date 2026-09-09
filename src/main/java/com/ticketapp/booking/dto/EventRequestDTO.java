@@ -9,6 +9,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
@@ -30,6 +32,9 @@ public class EventRequestDTO {
 
     private String imageUrl;
 
+
+    @NotNull(message = "Enter the event date !")
+    private LocalDateTime eventDate;
 
 
 
