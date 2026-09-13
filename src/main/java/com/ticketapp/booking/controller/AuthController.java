@@ -3,6 +3,7 @@ package com.ticketapp.booking.controller;
 
 import com.ticketapp.booking.dto.AuthRequestDTO;
 import com.ticketapp.booking.dto.AuthResponseDTO;
+import com.ticketapp.booking.dto.GoogleAuthRequestDTO;
 import com.ticketapp.booking.dto.UserRequestDTO;
 import com.ticketapp.booking.entity.User;
 import com.ticketapp.booking.service.AuthService;
@@ -33,6 +34,10 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<AuthResponseDTO> login(@RequestBody AuthRequestDTO request) {
         return ResponseEntity.ok(authService.loginUser(request));
+    }
+    @PostMapping("/google")
+    public ResponseEntity<AuthResponseDTO> googleLogin(@RequestBody GoogleAuthRequestDTO request) {
+        return ResponseEntity.ok(authService.loginWithGoogle(request.getIdToken()));
     }
 }
 
