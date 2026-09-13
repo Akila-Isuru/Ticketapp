@@ -2,6 +2,7 @@ package com.ticketapp.booking.controller;
 
 import com.ticketapp.booking.dto.EventRequestDTO;
 import com.ticketapp.booking.dto.EventResponseDTO;
+import com.ticketapp.booking.service.CloudinaryService;
 import com.ticketapp.booking.service.EventService;
 import com.ticketapp.booking.utill.StandardResponse;
 import jakarta.validation.Valid;
@@ -11,6 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -20,6 +22,7 @@ import java.util.List;
 @CrossOrigin
 public class EventController {
     private final EventService eventService;
+    private final CloudinaryService cloudinaryService;
 
     @PostMapping
     public ResponseEntity<StandardResponse> createEvent(@RequestBody @Valid EventRequestDTO eventRequestDTO){
@@ -87,6 +90,14 @@ public class EventController {
         eventService.deleteEvent(eventId);
         return new ResponseEntity<>(
                 new StandardResponse(200,"Event deleted successfully",null),
+                HttpStatus.OK
+        );
+    }
+    @PostMapping("/upload-image")
+    public ResponseEntity<StandardResponse> uploadEventImage(@RequestParam("file") MultipartFile file) {
+        String imageUrl = cloudinaryService.uploadImage(file);
+        return new ResponseEntity<>(
+                new StandardResponse(200, "Image uploaded successfully", imageUrl),
                 HttpStatus.OK
         );
     }
