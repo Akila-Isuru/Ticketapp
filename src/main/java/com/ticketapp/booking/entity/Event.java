@@ -34,4 +34,10 @@ public class Event {
 
 
     private LocalDateTime eventDate;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Category category;
+
+    private String subCategory;
 }

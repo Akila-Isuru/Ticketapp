@@ -1,6 +1,7 @@
 package com.ticketapp.booking.dto;
 
 
+import com.ticketapp.booking.entity.Category;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -35,6 +36,11 @@ public class EventRequestDTO {
 
     @NotNull(message = "Enter the event date !")
     private LocalDateTime eventDate;
+
+    @NotNull(message = "Select a category !")
+    private Category category;
+
+    private String subCategory;
 
 
 

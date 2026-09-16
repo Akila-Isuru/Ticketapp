@@ -1,5 +1,6 @@
 package com.ticketapp.booking.dto;
 
+import com.ticketapp.booking.entity.Category;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -19,5 +20,8 @@ public class EventResponseDTO {
     private Integer availableTickets;
     private String imageUrl;
     private LocalDateTime eventDate;
+    private Category category;
+    private String subCategory;
+
 
 }
