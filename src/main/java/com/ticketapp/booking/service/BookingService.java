@@ -83,23 +83,7 @@ public class BookingService {
 
         Booking savedBooking = bookingRepo.save(booking);
 
-        String orderId = "ORDER_" + savedBooking.getId();
-        String hash = PayHereUtils.generateHash(merchantId, orderId, totalAmount, currency, merchantSecret);
-
-        BookingResponseDTO bookingResponseDTO = new BookingResponseDTO();
-        bookingResponseDTO.setBookingId(savedBooking.getId());
-        bookingResponseDTO.setOrderId(orderId);
-        bookingResponseDTO.setMerchantId(merchantId);
-        bookingResponseDTO.setEventTitle(event.getTitle());
-        bookingResponseDTO.setTierName(tier != null ? tier.getName() : null);
-        bookingResponseDTO.setTicketCount(savedBooking.getTicketCount());
-        bookingResponseDTO.setTotalAmount(totalAmount);
-        bookingResponseDTO.setCurrency(currency);
-        bookingResponseDTO.setHash(hash);
-        bookingResponseDTO.setPaymentStatus(savedBooking.getPaymentStatus());
-        bookingResponseDTO.setBookingTime(savedBooking.getBookingTime());
-
-        return bookingResponseDTO;
+        return mapToDTO(savedBooking);
     }
 
     public boolean updatePaymentStatus(String merchantId,
@@ -179,7 +163,7 @@ public class BookingService {
         bookingRepo.save(booking);
     }
 
-    // Restores ticket count back to the tier if one was used, otherwise to the event
+
     private void restoreAvailability(Booking booking) {
         if (booking.getTicketTier() != null) {
             TicketTier tier = booking.getTicketTier();
@@ -208,7 +192,7 @@ public class BookingService {
         booking.setPayherePaymentId("MOCK_PAY_" + System.currentTimeMillis());
         Booking updatedBooking = bookingRepo.save(booking);
 
-        // Send Email Confirmation
+
         try {
             emailService.sendBookingConfirmationEmail(
                     booking.getUser().getEmail(),
@@ -223,16 +207,21 @@ public class BookingService {
 
         return mapToDTO(updatedBooking);
     }
+
     private BookingResponseDTO mapToDTO(Booking booking) {
+        String orderId = "ORDER_" + booking.getId();
+        String hash = PayHereUtils.generateHash(merchantId, orderId, booking.getTotalAmount(), currency, merchantSecret);
+
         BookingResponseDTO dto = new BookingResponseDTO();
         dto.setBookingId(booking.getId());
-        dto.setOrderId("ORDER_" + booking.getId());
+        dto.setOrderId(orderId);
         dto.setMerchantId(merchantId);
         dto.setEventTitle(booking.getEvent().getTitle());
         dto.setTierName(booking.getTicketTier() != null ? booking.getTicketTier().getName() : null);
         dto.setTicketCount(booking.getTicketCount());
         dto.setTotalAmount(booking.getTotalAmount());
         dto.setCurrency(currency);
+        dto.setHash(hash);
         dto.setPaymentStatus(booking.getPaymentStatus());
         dto.setBookingTime(booking.getBookingTime());
         return dto;

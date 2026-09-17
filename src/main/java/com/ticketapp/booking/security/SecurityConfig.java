@@ -50,6 +50,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE,"/api/v1/events/*/tiers/**").hasAuthority("ROLE_ADMIN")
 
 
+                        .requestMatchers(HttpMethod.POST, "/api/v1/bookings/notify").permitAll()
+
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session
