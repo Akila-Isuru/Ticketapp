@@ -1,6 +1,5 @@
 package com.ticketapp.booking.dto;
 
-import jakarta.persistence.Entity;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -21,4 +20,7 @@ public class BookingRequestDTO {
     @NotNull(message = "Ticket count is required !")
     @Min(value = 1,message = "At least should buy a 1 ticket")
     private Integer ticketCount;
+
+    // Optional — set only when booking a specific ticket tier
+    private Long tierId;
 }

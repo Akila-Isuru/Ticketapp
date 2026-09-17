@@ -14,6 +14,7 @@ public class BookingResponseDTO {
     private String orderId;
     private String merchantId;
     private String eventTitle;
+    private String tierName; // null when the event has no tiers
     private Integer ticketCount;
     private Double totalAmount;
     private String currency;

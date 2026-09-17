@@ -4,21 +4,19 @@ import com.ticketapp.booking.dto.BookingRequestDTO;
 import com.ticketapp.booking.dto.BookingResponseDTO;
 import com.ticketapp.booking.entity.Booking;
 import com.ticketapp.booking.entity.Event;
+import com.ticketapp.booking.entity.TicketTier;
 import com.ticketapp.booking.entity.User;
 import com.ticketapp.booking.exception.NotFoundException;
 import com.ticketapp.booking.repo.BookingRepository;
 import com.ticketapp.booking.repo.EventRepository;
+import com.ticketapp.booking.repo.TicketTierRepository;
 import com.ticketapp.booking.repo.UserRepository;
 import com.ticketapp.booking.utill.PayHereUtils;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
-import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.awt.print.Book;
 import java.util.List;
 
 @Service
@@ -29,7 +27,7 @@ public class BookingService {
     private final BookingRepository bookingRepo;
     private final EventRepository eventRepo;
     private final UserRepository userRepo;
-    private final ModelMapper modelMapper;
+    private final TicketTierRepository ticketTierRepo;
     private final EmailService emailService;
 
     @Value("${payhere.merchant.id}")
@@ -48,17 +46,37 @@ public class BookingService {
         Event event = eventRepo.findById(bookingRequestDTO.getEventId())
                 .orElseThrow(() -> new NotFoundException("Event not found"));
 
-        if (event.getAvailableTickets() < bookingRequestDTO.getTicketCount()) {
-            throw new Exception("Not enough tickets available for this event!");
-        }
-        Double totalAmount = event.getTicketPrice() * bookingRequestDTO.getTicketCount();
+        TicketTier tier = null;
+        Double pricePerTicket;
 
-        event.setAvailableTickets(event.getAvailableTickets() - bookingRequestDTO.getTicketCount());
-        eventRepo.save(event);
+        if (bookingRequestDTO.getTierId() != null) {
+            tier = ticketTierRepo.findById(bookingRequestDTO.getTierId())
+                    .orElseThrow(() -> new NotFoundException("Ticket tier not found"));
+
+            if (tier.getAvailableCount() < bookingRequestDTO.getTicketCount()) {
+                throw new Exception("Not enough tickets available for this tier!");
+            }
+
+            pricePerTicket = tier.getPrice();
+            tier.setAvailableCount(tier.getAvailableCount() - bookingRequestDTO.getTicketCount());
+            ticketTierRepo.save(tier);
+
+        } else {
+
+            if (event.getAvailableTickets() < bookingRequestDTO.getTicketCount()) {
+                throw new Exception("Not enough tickets available for this event!");
+            }
+            pricePerTicket = event.getTicketPrice();
+            event.setAvailableTickets(event.getAvailableTickets() - bookingRequestDTO.getTicketCount());
+            eventRepo.save(event);
+        }
+
+        Double totalAmount = pricePerTicket * bookingRequestDTO.getTicketCount();
 
         Booking booking = new Booking();
         booking.setUser(user);
         booking.setEvent(event);
+        booking.setTicketTier(tier);
         booking.setTotalAmount(totalAmount);
         booking.setTicketCount(bookingRequestDTO.getTicketCount());
         booking.setPaymentStatus("PENDING");
@@ -73,6 +91,7 @@ public class BookingService {
         bookingResponseDTO.setOrderId(orderId);
         bookingResponseDTO.setMerchantId(merchantId);
         bookingResponseDTO.setEventTitle(event.getTitle());
+        bookingResponseDTO.setTierName(tier != null ? tier.getName() : null);
         bookingResponseDTO.setTicketCount(savedBooking.getTicketCount());
         bookingResponseDTO.setTotalAmount(totalAmount);
         bookingResponseDTO.setCurrency(currency);
@@ -123,9 +142,7 @@ public class BookingService {
                 booking.setPaymentStatus("FAILED");
                 booking.setPayherePaymentId(payherePaymentId);
 
-                Event event = booking.getEvent();
-                event.setAvailableTickets(event.getAvailableTickets() + booking.getTicketCount());
-                eventRepo.save(event);
+                restoreAvailability(booking);
             }
 
         }
@@ -156,16 +173,25 @@ public class BookingService {
             throw new RuntimeException("Booking is already cancelled");
         }
 
-        Event event = booking.getEvent();
-        event.setAvailableTickets(event.getAvailableTickets() + booking.getTicketCount());
-        eventRepo.save(event);
+        restoreAvailability(booking);
 
         booking.setPaymentStatus("CANCELLED");
         bookingRepo.save(booking);
-
-
-
     }
+
+    // Restores ticket count back to the tier if one was used, otherwise to the event
+    private void restoreAvailability(Booking booking) {
+        if (booking.getTicketTier() != null) {
+            TicketTier tier = booking.getTicketTier();
+            tier.setAvailableCount(tier.getAvailableCount() + booking.getTicketCount());
+            ticketTierRepo.save(tier);
+        } else {
+            Event event = booking.getEvent();
+            event.setAvailableTickets(event.getAvailableTickets() + booking.getTicketCount());
+            eventRepo.save(event);
+        }
+    }
+
     public BookingResponseDTO processMockPayment(Long bookingId) {
         Booking booking = bookingRepo.findById(bookingId)
                 .orElseThrow(() -> new NotFoundException("Booking not found"));
@@ -203,6 +229,7 @@ public class BookingService {
         dto.setOrderId("ORDER_" + booking.getId());
         dto.setMerchantId(merchantId);
         dto.setEventTitle(booking.getEvent().getTitle());
+        dto.setTierName(booking.getTicketTier() != null ? booking.getTicketTier().getName() : null);
         dto.setTicketCount(booking.getTicketCount());
         dto.setTotalAmount(booking.getTotalAmount());
         dto.setCurrency(currency);
@@ -212,5 +239,3 @@ public class BookingService {
     }
 
 }
-
-

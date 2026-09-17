@@ -25,6 +25,10 @@ public class Booking {
     @JoinColumn(name = "event_id", nullable = false)
     private Event event;
 
+    @ManyToOne
+    @JoinColumn(name = "ticket_tier_id")
+    private TicketTier ticketTier;
+
     @Column(nullable = false)
     private Integer ticketCount;
 
