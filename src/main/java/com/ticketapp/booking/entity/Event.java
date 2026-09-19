@@ -31,7 +31,7 @@ public class Event {
     private Integer availableTickets;
 
     private String imageUrl;
-
+    private String cardImageUrl;
 
     private LocalDateTime eventDate;
 

@@ -19,9 +19,9 @@ public class EventResponseDTO {
     private Integer totalTickets;
     private Integer availableTickets;
     private String imageUrl;
+    private String cardImageUrl;
     private LocalDateTime eventDate;
     private Category category;
     private String subCategory;
-
 
 }

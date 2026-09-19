@@ -78,6 +78,7 @@ public class EventService {
         event.setEventDate(eventRequestDTO.getEventDate());
         event.setCategory(eventRequestDTO.getCategory());
         event.setSubCategory(eventRequestDTO.getSubCategory());
+        event.setCardImageUrl(eventRequestDTO.getCardImageUrl());
         event.setAvailableTickets(eventRequestDTO.getTotalTickets() - soldTickets);
 
         eventRepo.save(event);

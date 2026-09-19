@@ -17,22 +17,23 @@ import java.time.LocalDateTime;
 @Data
 public class EventRequestDTO {
 
-   @NotBlank(message = "Tittle cannot be empty !")
+    @NotBlank(message = "Tittle cannot be empty !")
     private String title;
 
-   @NotBlank(message = "Location cannot be empty !")
+    @NotBlank(message = "Location cannot be empty !")
     private String location;
 
-   @NotNull(message = "Enter the ticket price !")
-   @Positive(message = "Price must be a positive !")
+    @NotNull(message = "Enter the ticket price !")
+    @Positive(message = "Price must be a positive !")
     private double ticketPrice;
 
-   @NotNull(message = "Enter the total ticket count !")
-   @Min(value = 1,message = "At least should buy a one ticket !")
+    @NotNull(message = "Enter the total ticket count !")
+    @Min(value = 1,message = "At least should buy a one ticket !")
     private Integer totalTickets;
 
     private String imageUrl;
 
+    private String cardImageUrl;
 
     @NotNull(message = "Enter the event date !")
     private LocalDateTime eventDate;
@@ -41,7 +42,5 @@ public class EventRequestDTO {
     private Category category;
 
     private String subCategory;
-
-
 
 }
